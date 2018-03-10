@@ -16,8 +16,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public class Bot extends TelegramLongPollingBot {
+    private String botToken;
     private static final Logger LOGGER = LogManager.getLogger(Bot.class.getName());
     private Map<Long, Updater> map = new ConcurrentHashMap<>();
+
+    public Bot(String botToken) {
+        this.botToken = botToken;
+    }
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -65,7 +70,7 @@ public class Bot extends TelegramLongPollingBot {
 
     @Override
     public String getBotToken() {
-        return "502626763:AAFZWXNzklFlFQ5Oe_7XbECedkZO3FEbEG0";
+        return botToken;
     }
 
     @SuppressWarnings("deprecation")
@@ -81,13 +86,15 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     public static void main(String[] args) {
-        LOGGER.info("Start main");
-        ApiContextInitializer.init();
-        TelegramBotsApi botsApi = new TelegramBotsApi();
-        try {
-            botsApi.registerBot(new Bot());
-        } catch (TelegramApiRequestException e) {
-            LOGGER.error(e.getMessage(), e);
+        if (args.length == 1) {
+            LOGGER.info("Start main");
+            ApiContextInitializer.init();
+            TelegramBotsApi botsApi = new TelegramBotsApi();
+            try {
+                botsApi.registerBot(new Bot(args[0]));
+            } catch (TelegramApiRequestException e) {
+                LOGGER.error(e.getMessage(), e);
+            }
         }
     }
 }
