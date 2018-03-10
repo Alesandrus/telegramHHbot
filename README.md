@@ -1,2 +1,2 @@
 # telegramHHbot
-Бот для обновления вакансии на headhunter
+Бот для обновления резюме на headhunter
