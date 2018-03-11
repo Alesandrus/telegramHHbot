@@ -15,15 +15,39 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Бот обновляющий вакансию на hh.ru.
+ */
 public class Bot extends TelegramLongPollingBot {
+    /**
+     * Токен бота.
+     */
     private String botToken;
+
+    /**
+     * Логгер.
+     */
     private static final Logger LOGGER = LogManager.getLogger(Bot.class.getName());
+
+    /**
+     * Мэпа апдейтеров для каждого чата.
+     */
     private Map<Long, Updater> map = new ConcurrentHashMap<>();
 
+    /**
+     * Конструктор.
+     *
+     * @param botToken токен.
+     */
     public Bot(String botToken) {
         this.botToken = botToken;
     }
 
+    /**
+     * Получение введенной информации.
+     *
+     * @param update update.
+     */
     @Override
     public void onUpdateReceived(Update update) {
         Message msg = update.getMessage();
@@ -33,12 +57,12 @@ public class Bot extends TelegramLongPollingBot {
             if (!map.containsKey(chatId)) {
                 map.put(chatId, new Updater(243, TimeUnit.MINUTES, this, chatId));
             }
-            if (map.get(chatId).isSetResume()) {
+            if (map.get(chatId).isCheckResume()) {
                 map.get(chatId).setResumeID(cmdName);
-                map.get(chatId).setSetResume(false);
-            } else if (map.get(chatId).isSetToken()) {
+                map.get(chatId).setCheckResume(false);
+            } else if (map.get(chatId).isCheckToken()) {
                 map.get(chatId).setTokenHH(cmdName);
-                map.get(chatId).setSetToken(false);
+                map.get(chatId).setCheckToken(false);
             } else {
                 if (cmdName.equals("/start")) {
                     if (map.get(chatId).getResumeID() == null) {
@@ -53,28 +77,44 @@ public class Bot extends TelegramLongPollingBot {
                         map.get(chatId).shutdown();
                     }
                 } else if (cmdName.equals("/resume_id")) {
-                    map.get(chatId).setSetResume(true);
+                    map.get(chatId).setCheckResume(true);
                     sendMsg(msg, "Введите ID");
                 } else if (cmdName.equals("/token_hh")) {
-                    map.get(chatId).setSetToken(true);
+                    map.get(chatId).setCheckToken(true);
                     sendMsg(msg, "Введите токен");
                 }
             }
         }
     }
 
+    /**
+     * Получить имя бота.
+     *
+     * @return имя бота.
+     */
     @Override
     public String getBotUsername() {
         return "Shelby";
     }
 
+    /**
+     * Получить токен бота.
+     *
+     * @return токен.
+     */
     @Override
     public String getBotToken() {
         return botToken;
     }
 
+    /**
+     * Послать сообщение.
+     *
+     * @param msg  Message.
+     * @param text текст.
+     */
     @SuppressWarnings("deprecation")
-    public void sendMsg(Message msg, String text) {
+    private void sendMsg(Message msg, String text) {
         SendMessage message = new SendMessage();
         message.setChatId(msg.getChatId());
         message.setText(text);
@@ -85,6 +125,11 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
+    /**
+     * Main.
+     *
+     * @param args token.
+     */
     public static void main(String[] args) {
         if (args.length == 1) {
             LOGGER.info("Start main");

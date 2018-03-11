@@ -14,18 +14,68 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Класс для обновления резюме.
+ */
 public class Updater {
+    /**
+     * Логгер.
+     */
     private static final Logger LOGGER = LogManager.getLogger(Bot.class.getName());
-    private ScheduledExecutorService executorService;
-    private String resumeID;
-    private String tokenHH;
-    private long period;
-    private TimeUnit timeUnit;
-    private Bot bot;
-    private Long chatID;
-    private boolean setResume;
-    private boolean setToken;
 
+    /**
+     * Экзекьютер.
+     */
+    private ScheduledExecutorService executorService;
+
+    /**
+     * ID резюме.
+     */
+    private String resumeID;
+
+    /**
+     * Токен личного кабинета hh.ru.
+     */
+    private String tokenHH;
+
+    /**
+     * Период между обращением к hh.ru для обновления.
+     */
+    private long period;
+
+    /**
+     * TimeUnit.
+     */
+    private TimeUnit timeUnit;
+
+    /**
+     * Бот.
+     */
+    private Bot bot;
+
+    /**
+     * ID чата.
+     */
+    private Long chatID;
+
+    /**
+     * Помогает определить что введенные данные это ID резюме.
+     */
+    private boolean checkResume;
+
+    /**
+     * Помогает определить что введенные данные это токен hh.ru.
+     */
+    private boolean checkToken;
+
+    /**
+     * Конструктор.
+     *
+     * @param period   период.
+     * @param timeUnit TimeUnit.
+     * @param bot      бот.
+     * @param chatID   ID чата.
+     */
     public Updater(long period, TimeUnit timeUnit, Bot bot, Long chatID) {
         this.period = period;
         this.timeUnit = timeUnit;
@@ -33,6 +83,9 @@ public class Updater {
         this.chatID = chatID;
     }
 
+    /**
+     * Выполнить обновление резюме.
+     */
     public void executeUpdate() {
         HttpPost httpPost = new HttpPost(String.format("https://api.hh.ru/resumes/%s/publish", resumeID));
         httpPost.addHeader("User-Agent", "api-test-agent");
@@ -53,10 +106,10 @@ public class Updater {
                     } catch (TelegramApiException e) {
                         LOGGER.error(e.getMessage(), e);
                     }
-                    setResume = false;
-                    setToken = false;
+                    checkResume = false;
+                    checkToken = false;
                     executorService.shutdown();
-                } /*else if (statusCode == 429) {
+                /*} else if (statusCode == 429) {
                     SendMessage message = new SendMessage();
                     message.setChatId(chatID);
                     message.setText("Резюме обновится через некоторое время");
@@ -64,8 +117,8 @@ public class Updater {
                         bot.sendMessage(message);
                     } catch (TelegramApiException e) {
                         LOGGER.error(e.getMessage(), e);
-                    }
-                } */else if (statusCode == 204) {
+                    }*/
+                } else if (statusCode == 204) {
                     SendMessage message = new SendMessage();
                     message.setChatId(chatID);
                     message.setText("Резюме обновлено");
@@ -81,6 +134,9 @@ public class Updater {
         }, 0, period, timeUnit);
     }
 
+    /**
+     * Остановить выполнение обновления.
+     */
     public void shutdown() {
         if (executorService != null) {
             executorService.shutdownNow();
@@ -95,34 +151,74 @@ public class Updater {
         }
     }
 
-    public boolean isSetResume() {
-        return setResume;
+    /**
+     * Геттер checkResume.
+     *
+     * @return true если начали вводить /resume_id.
+     */
+    public boolean isCheckResume() {
+        return checkResume;
     }
 
-    public void setSetResume(boolean setResume) {
-        this.setResume = setResume;
+    /**
+     * Сеттер checkResume.
+     *
+     * @param checkResume .
+     */
+    public void setCheckResume(boolean checkResume) {
+        this.checkResume = checkResume;
     }
 
-    public boolean isSetToken() {
-        return setToken;
+    /**
+     * Геттер checkToken.
+     *
+     * @return true если начали вводить /token_hh.
+     */
+    public boolean isCheckToken() {
+        return checkToken;
     }
 
-    public void setSetToken(boolean setToken) {
-        this.setToken = setToken;
+    /**
+     * Сеттер checkToken.
+     *
+     * @param checkToken .
+     */
+    public void setCheckToken(boolean checkToken) {
+        this.checkToken = checkToken;
     }
 
+    /**
+     * Геттер ID резюме.
+     *
+     * @return ID резюме.
+     */
     public String getResumeID() {
         return resumeID;
     }
 
+    /**
+     * Сеттер ID резюме.
+     *
+     * @param resumeID .
+     */
     public void setResumeID(String resumeID) {
         this.resumeID = resumeID;
     }
 
+    /**
+     * Геттер токена.
+     *
+     * @return токен.
+     */
     public String getTokenHH() {
         return tokenHH;
     }
 
+    /**
+     * Сеттер токена.
+     *
+     * @param tokenHH .
+     */
     public void setTokenHH(String tokenHH) {
         this.tokenHH = tokenHH;
     }
