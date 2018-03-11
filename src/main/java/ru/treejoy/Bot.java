@@ -65,12 +65,16 @@ public class Bot extends TelegramLongPollingBot {
                 map.get(chatId).setCheckToken(false);
             } else {
                 if (cmdName.equals("/start")) {
-                    if (map.get(chatId).getResumeID() == null) {
-                        sendMsg(msg, "Укажите ID вашего резюме на hh.ru c помощью команды /resume_id");
-                    } else if (map.get(chatId).getTokenHH() == null) {
-                        sendMsg(msg, "Укажите ваш токен с dev.hh.ru/admin c помощью команды /token_hh");
+                    if (!map.get(chatId).isStart()) {
+                        if (map.get(chatId).getResumeID() == null) {
+                            sendMsg(msg, "Укажите ID вашего резюме на hh.ru c помощью команды /resume_id");
+                        } else if (map.get(chatId).getTokenHH() == null) {
+                            sendMsg(msg, "Укажите ваш токен с dev.hh.ru/admin c помощью команды /token_hh");
+                        } else {
+                            map.get(chatId).executeUpdate();
+                        }
                     } else {
-                        map.get(chatId).executeUpdate();
+                        sendMsg(msg, "Я уже работаю над обновлением вашего резюме");
                     }
                 } else if (cmdName.equals("/stop")) {
                     if (map.containsKey(chatId)) {

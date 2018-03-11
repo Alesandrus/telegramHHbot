@@ -69,6 +69,11 @@ public class Updater {
     private boolean checkToken;
 
     /**
+     * Флаг запуска.
+     */
+    private boolean start;
+
+    /**
      * Конструктор.
      *
      * @param period   период.
@@ -91,6 +96,7 @@ public class Updater {
         httpPost.addHeader("User-Agent", "api-test-agent");
         httpPost.addHeader("Authorization", "Bearer " + tokenHH);
         executorService = Executors.newSingleThreadScheduledExecutor();
+        start = true;
         executorService.scheduleAtFixedRate(() -> {
             try (CloseableHttpClient httpClient = HttpClients.createDefault();
                  CloseableHttpResponse response = httpClient.execute(httpPost)) {
@@ -140,6 +146,7 @@ public class Updater {
     public void shutdown() {
         if (executorService != null) {
             executorService.shutdownNow();
+            start = false;
             SendMessage message = new SendMessage();
             message.setChatId(chatID);
             message.setText("Автообновление остановлено");
@@ -221,5 +228,23 @@ public class Updater {
      */
     public void setTokenHH(String tokenHH) {
         this.tokenHH = tokenHH;
+    }
+
+    /**
+     * Геттер для start.
+     *
+     * @return true если обновление запущено.
+     */
+    public boolean isStart() {
+        return start;
+    }
+
+    /**
+     * Сеттер для start.
+     *
+     * @param start .
+     */
+    public void setStart(boolean start) {
+        this.start = start;
     }
 }
