@@ -106,7 +106,7 @@ public class Updater {
                     SendMessage message = new SendMessage();
                     message.setChatId(chatID);
                     message.setText("Проверьте срок действия токена,"
-                            + " или корректно ли ввели вы ID вашего резюме и токен");
+                            + " или корректность введенных ID резюме и токена");
                     try {
                         bot.sendMessage(message);
                     } catch (TelegramApiException e) {
